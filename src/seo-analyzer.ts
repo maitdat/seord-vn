@@ -140,218 +140,215 @@ export class SeoAnalyzer {
         return this.htmlAnalyzer.getWordCount(this.content.title);
     }
 
-    private assignMessagesForKeyword() {
-        // warning for keyword not in content
+    assignMessagesForKeyword() {
+        // cảnh báo từ khóa không có trong nội dung
         if (this.content.keyword) {
-            this.messages.goodPoints.push(`Good, your content has a keyword "${this.content.keyword}".`);
-
-            // warning for keyword overstuffing
+            this.messages.goodPoints.push(`Tốt, nội dung của bạn có từ khóa "${this.content.keyword}".`);
+            // cảnh báo nhồi nhét từ khóa
             if (this.keywordDensity > 5) {
-                this.messages.warnings.push('Serious keyword overstuffing.');
+                this.messages.warnings.push('Nhồi nhét từ khóa quá nhiều.');
             }
-
-            // warning for keyword density too high or too low based on content length
+            // cảnh báo mật độ từ khóa quá cao hoặc quá thấp dựa trên độ dài nội dung
             if (this.keywordDensity < this.MINIMUM_KEYWORD_DENSITY) {
-                this.messages.warnings.push(`Keyword density is too low. It is ${this.keywordDensity.toFixed(2)}%, try increasing it.`)
+                this.messages.warnings.push(`Mật độ từ khóa quá thấp. Hiện tại là ${this.keywordDensity.toFixed(2)}%, hãy tăng thêm.`);
             } else if (this.keywordDensity > this.MAXIMUM_KEYWORD_DENSITY) {
-                this.messages.warnings.push(`Keyword density is too high. It is ${this.keywordDensity.toFixed(2)}%, try decreasing it.`)
+                this.messages.warnings.push(`Mật độ từ khóa quá cao. Hiện tại là ${this.keywordDensity.toFixed(2)}%, hãy giảm bớt.`);
             } else {
-                this.messages.goodPoints.push(`Keyword density is ${this.keywordDensity.toFixed(2)}%.`);
+                this.messages.goodPoints.push(`Mật độ từ khóa là ${this.keywordDensity.toFixed(2)}%.`);
             }
         } else {
-            this.messages.warnings.push('Missing main keyword, please add one.');
+            this.messages.warnings.push('Thiếu từ khóa chính, vui lòng thêm từ khóa.');
         }
     }
 
-
-    private assignMessagesForSubKeywords() {
-        // warning for sub keywords in content
+    assignMessagesForSubKeywords() {
+        // cảnh báo từ khóa phụ trong nội dung
         if (this.content.subKeywords.length > 0) {
-            this.messages.goodPoints.push(`Good, your content has sub keywords "${this.content.subKeywords.join(', ')}".`);
-
-            // warning for sub keywords not in title
+            this.messages.goodPoints.push(`Tốt, nội dung của bạn có từ khóa phụ "${this.content.subKeywords.join(', ')}".`);
+            // cảnh báo mật độ từ khóa phụ
             const subKeywordsDensity = this.getSubKeywordsDensity();
             subKeywordsDensity.forEach((subKeywordDensity) => {
                 if (subKeywordDensity.density > this.MAXIMUM_SUB_KEYWORD_DENSITY) {
-                    this.messages.warnings.push(`The density of sub keyword "${subKeywordDensity.keyword}" is too high in the content, i.e. ${subKeywordDensity.density.toFixed(2)}%.`);
+                    this.messages.warnings.push(`Mật độ từ khóa phụ "${subKeywordDensity.keyword}" trong nội dung quá cao, hiện tại là ${subKeywordDensity.density.toFixed(2)}%.`);
                 } else if (subKeywordDensity.density < this.MINIMUM_SUB_KEYWORD_DENSITY) {
-                    let densityBeingLowString = subKeywordDensity.density < this.EXTREME_LOW_SUB_KEYWORD_DENSITY ? 'too low' : 'low';
-                    this.messages.minorWarnings.push(`The density of sub keyword "${subKeywordDensity.keyword}" is ${densityBeingLowString} in the content, i.e. ${subKeywordDensity.density.toFixed(2)}%.`);
+                    let densityBeingLowString = subKeywordDensity.density < this.EXTREME_LOW_SUB_KEYWORD_DENSITY ? 'quá thấp' : 'thấp';
+                    this.messages.minorWarnings.push(`Mật độ từ khóa phụ "${subKeywordDensity.keyword}" trong nội dung ${densityBeingLowString}, hiện tại là ${subKeywordDensity.density.toFixed(2)}%.`);
                 } else {
-                    this.messages.goodPoints.push(`The density of sub keyword "${subKeywordDensity.keyword}" is ${subKeywordDensity.density.toFixed(2)}% in the content, which is good.`);
+                    this.messages.goodPoints.push(`Mật độ từ khóa phụ "${subKeywordDensity.keyword}" trong nội dung là ${subKeywordDensity.density.toFixed(2)}%, rất tốt.`);
                 }
             });
         } else {
-            this.messages.minorWarnings.push('Missing sub keywords, please add some.');
+            this.messages.minorWarnings.push('Thiếu từ khóa phụ, vui lòng thêm một số từ khóa phụ.');
         }
     }
 
-    private assignMessagesForTitle() {
-        // warning for content title and its length
+    assignMessagesForTitle() {
+        // cảnh báo về tiêu đề nội dung và độ dài của nó
         if (this.content.title) {
             if (this.content.title.length > this.MAXIMUM_TITLE_LENGTH) {
-                this.messages.warnings.push('Title tag is too long.')
+                this.messages.warnings.push('Thẻ tiêu đề quá dài.');
             } else if (this.content.title.length < this.MINIMUM_TITLE_LENGTH) {
-                this.messages.warnings.push('Title tag is too short.')
+                this.messages.warnings.push('Thẻ tiêu đề quá ngắn.');
             } else {
-                this.messages.goodPoints.push(`Title tag is ${this.content.title.length} characters long.`);
+                this.messages.goodPoints.push(`Thẻ tiêu đề có độ dài ${this.content.title.length} ký tự.`);
             }
 
             const keywordInTitle = this.getKeywordInTitle();
             if (keywordInTitle.density) {
-                this.messages.goodPoints.push(`Keyword density in title is ${keywordInTitle.density.toFixed(2)}%, which is good.`);
+                this.messages.goodPoints.push(`Mật độ từ khóa trong tiêu đề là ${keywordInTitle.density.toFixed(2)}%, rất tốt.`);
             } else {
-                this.messages.warnings.push('No main keyword in title.');
+                this.messages.warnings.push('Không có từ khóa chính trong tiêu đề.');
             }
+
             if (this.content.title) {
                 if (this.getSubKeywordsInTitle().length > 0) {
-                    this.messages.goodPoints.push(`You have ${this.getSubKeywordsInTitle().length} sub keywords in title.`);
+                    this.messages.goodPoints.push(`Bạn có ${this.getSubKeywordsInTitle().length} từ khóa phụ trong tiêu đề.`);
                 } else {
-                    this.messages.minorWarnings.push('No sub keywords in the title.');
+                    this.messages.minorWarnings.push('Không có từ khóa phụ trong tiêu đề.');
                 }
             }
         } else {
-            this.messages.warnings.push('Missing title tag, please add one.');
+            this.messages.warnings.push('Thiếu thẻ tiêu đề, vui lòng thêm một thẻ tiêu đề.');
         }
     }
 
-    private assignMessagesForLinks() {
+    assignMessagesForLinks() {
         let wordCount = this.htmlAnalyzer.getWordCount();
-        // warning for less internal links based on content length
+        // Cảnh báo về số lượng liên kết nội bộ dựa trên độ dài nội dung
         if (this.totalUniqueInternalLinksCount() < (wordCount / 300)) {
-            this.messages.warnings.push(`Not enough internal links. You only have ${this.totalUniqueInternalLinksCount()} unique internal links, try increasing it.`)
+            this.messages.warnings.push(`Số lượng liên kết nội bộ không đủ. Bạn chỉ có ${this.totalUniqueInternalLinksCount()} liên kết nội bộ duy nhất, hãy tăng số lượng lên.`);
         } else {
-            this.messages.goodPoints.push(`You have ${this.totalUniqueInternalLinksCount()} internal links.`);
+            this.messages.goodPoints.push(`Bạn có ${this.totalUniqueInternalLinksCount()} liên kết nội bộ.`);
         }
-        // warning for less outbound links based on content length
+
+        // Cảnh báo về số lượng liên kết bên ngoài dựa trên độ dài nội dung
         if (this.totalUniqueExternalLinksCount() < (wordCount / 400)) {
-            this.messages.warnings.push(`Not enough outbound links. You only have ${this.totalUniqueExternalLinksCount()}, try increasing it.`)
+            this.messages.warnings.push(`Số lượng liên kết bên ngoài không đủ. Bạn chỉ có ${this.totalUniqueExternalLinksCount()}, hãy tăng số lượng lên.`);
         }
 
-
-        // warning for duplicate internal links
+        // Cảnh báo về các liên kết nội bộ bị trùng lặp
         if (this.htmlAnalyzer.getInternalLinks().duplicate.length > 1) {
-            this.messages.minorWarnings.push(`You have ${this.htmlAnalyzer.getInternalLinks().duplicate.length} duplicate internal links.`);
+            this.messages.minorWarnings.push(`Bạn có ${this.htmlAnalyzer.getInternalLinks().duplicate.length} liên kết nội bộ trùng lặp.`);
         } else {
-            this.messages.goodPoints.push('No duplicate internal links.');
+            this.messages.goodPoints.push('Không có liên kết nội bộ trùng lặp.');
         }
 
-        // warning for duplicate external links
+        // Cảnh báo về các liên kết bên ngoài bị trùng lặp
         if (this.htmlAnalyzer.getOutboundLinks().duplicate.length > 1) {
-            this.messages.minorWarnings.push(`You have ${this.htmlAnalyzer.getOutboundLinks().duplicate.length} duplicate outbound links.`);
+            this.messages.minorWarnings.push(`Bạn có ${this.htmlAnalyzer.getOutboundLinks().duplicate.length} liên kết bên ngoài trùng lặp.`);
         } else {
-            this.messages.goodPoints.push('No duplicate outbound links.');
+            this.messages.goodPoints.push('Không có liên kết bên ngoài trùng lặp.');
         }
     }
 
-    private assignMessagesForMetaDescription() {
+    assignMessagesForMetaDescription() {
         if (this.content.metaDescription) {
             let keywordInMetaDescription = this.getKeywordInMetaDescription();
-
-            // warning for meta description length
+            // Cảnh báo về độ dài của meta description
             if (this.content.metaDescription.length > this.MAXIMUM_META_DESCRIPTION_LENGTH) {
-                this.messages.warnings.push(`Meta description is too long. It is ${this.content.metaDescription.length} characters long, try reducing it.`)
+                this.messages.warnings.push(`Meta description quá dài. Độ dài hiện tại là ${this.content.metaDescription.length} ký tự, hãy rút ngắn lại.`);
             } else if (this.content.metaDescription.length < 100) {
-                this.messages.warnings.push(`Meta description is too short. It is ${this.content.metaDescription.length} characters long, try increasing it.`)
+                this.messages.warnings.push(`Meta description quá ngắn. Độ dài hiện tại là ${this.content.metaDescription.length} ký tự, hãy tăng lên.`);
             } else {
-                this.messages.goodPoints.push(`Meta description is ${this.content.metaDescription.length} characters long.`);
+                this.messages.goodPoints.push(`Meta description có độ dài ${this.content.metaDescription.length} ký tự.`);
 
-                // warning for meta description keyword density
+                // Cảnh báo về mật độ từ khóa trong meta description
                 if (keywordInMetaDescription.density > this.MAXIMUM_META_DESCRIPTION_DENSITY) {
-                    this.messages.warnings.push(`Keyword density of meta description is too high. It is ${keywordInMetaDescription.density.toFixed(2)}%, try decreasing it.`)
+                    this.messages.warnings.push(`Mật độ từ khóa trong meta description quá cao. Hiện tại là ${keywordInMetaDescription.density.toFixed(2)}%, hãy giảm xuống.`);
                 } else if (keywordInMetaDescription.density < this.MINIMUM_META_DESCRIPTION_DENSITY) {
-                    this.messages.warnings.push(`Keyword density of meta description is too low. It is ${keywordInMetaDescription.density.toFixed(2)}%, try increasing it.`)
+                    this.messages.warnings.push(`Mật độ từ khóa trong meta description quá thấp. Hiện tại là ${keywordInMetaDescription.density.toFixed(2)}%, hãy tăng lên.`);
                 } else {
-                    this.messages.goodPoints.push(`Keyword density of meta description is ${keywordInMetaDescription.density.toFixed(2)}%, which is good.`);
+                    this.messages.goodPoints.push(`Mật độ từ khóa trong meta description là ${keywordInMetaDescription.density.toFixed(2)}%, rất tốt.`);
                 }
             }
 
-            // warning for meta description not starting with keyword
+            // Cảnh báo về meta description không bắt đầu bằng từ khóa
             if (keywordInMetaDescription.position > 1) {
-                this.messages.minorWarnings.push(`Meta description does not start with keyword. It starts with "${this.content.metaDescription.substring(0, 20)}", try starting with keyword. Not starting with keyword is not a big issue, but it is recommended to start with keyword.`)
+                this.messages.minorWarnings.push(`Meta description không bắt đầu bằng từ khóa. Nó bắt đầu bằng "${this.content.metaDescription.substring(0, 20)}", hãy thử bắt đầu bằng từ khóa. Không bắt đầu bằng từ khóa không phải vấn đề lớn, nhưng được khuyến nghị nên làm.`);
             } else {
-                this.messages.goodPoints.push(`Meta description starts with keyword, i.e. "${this.content.metaDescription.substring(0, 20)}".`);
+                this.messages.goodPoints.push(`Meta description bắt đầu bằng từ khóa: "${this.content.metaDescription.substring(0, 20)}".`);
             }
 
-            // warning for meta description not ending with keyword
+            // Cảnh báo về mật độ từ khóa phụ trong meta description
             let subKeywordsInMetaDescription = this.getSubKeywordsInMetaDescription();
             subKeywordsInMetaDescription.forEach((subKeyword) => {
                 if (subKeyword.density > this.MAXIMUM_SUB_KEYWORD_IN_META_DESCRIPTION_DENSITY) {
-                    this.messages.warnings.push(`The density of sub keyword "${subKeyword.keyword}" in meta description is too high, i.e. ${subKeyword.density.toFixed(2)}%.`);
+                    this.messages.warnings.push(`Mật độ từ khóa phụ "${subKeyword.keyword}" trong meta description quá cao, hiện tại là ${subKeyword.density.toFixed(2)}%.`);
                 } else if (subKeyword.density < this.MINIMUM_SUB_KEYWORD_IN_META_DESCRIPTION_DENSITY) {
-                    let densityBeingLowString = subKeyword.density < 0.2 ? 'too low' : 'low';
-                    this.messages.minorWarnings.push(`The density of sub keyword "${subKeyword.keyword}" in meta description is ${densityBeingLowString}, i.e. ${subKeyword.density.toFixed(2)}%.`);
+                    let densityBeingLowString = subKeyword.density < 0.2 ? 'quá thấp' : 'thấp';
+                    this.messages.minorWarnings.push(`Mật độ từ khóa phụ "${subKeyword.keyword}" trong meta description ${densityBeingLowString}, hiện tại là ${subKeyword.density.toFixed(2)}%.`);
                 } else {
-                    this.messages.goodPoints.push(`The density of sub keyword "${subKeyword.keyword}" in meta description is ${subKeyword.density.toFixed(2)}%.`);
+                    this.messages.goodPoints.push(`Mật độ từ khóa phụ "${subKeyword.keyword}" trong meta description là ${subKeyword.density.toFixed(2)}%.`);
                 }
             });
         } else {
-            this.messages.warnings.push('Missing meta description.')
+            this.messages.warnings.push('Thiếu meta description.');
         }
     }
 
-
-    filterHeading(headingTag: string): Heading[] {
-        return this.headings.filter((heading) => heading.tag.toLowerCase() === headingTag.toLowerCase())
+    filterHeading(headingTag) {
+        return this.headings.filter((heading) => heading.tag.toLowerCase() === headingTag.toLowerCase());
     }
-
-    private assignMessagesForHeadings() {
+    assignMessagesForHeadings() {
         if (this.headings.length === 0) {
-            this.messages.warnings.push('Missing headings, please add at least one heading tag.');
+            this.messages.warnings.push('Thiếu thẻ heading, vui lòng thêm ít nhất một thẻ heading.');
         } else {
-            this.messages.goodPoints.push(`You have ${this.headings.length} this.headings.`);
-            // warning for missing h1 tag
+            this.messages.goodPoints.push(`Bạn có ${this.headings.length} thẻ heading.`);
 
+            // Cảnh báo thiếu thẻ h1
             let headingsOne = this.filterHeading('h1');
             if (headingsOne.length === 0) {
-                this.messages.warnings.push('Missing h1 tag, please add at least one h1 tag.');
+                this.messages.warnings.push('Thiếu thẻ h1, vui lòng thêm ít nhất một thẻ h1.');
             } else if (headingsOne.length > 1) {
-                this.messages.warnings.push('More than one h1 tag found, please remove all but one h1 tag.');
+                this.messages.warnings.push('Có nhiều hơn một thẻ h1, vui lòng giữ lại một thẻ h1 và xóa các thẻ h1 khác.');
             } else {
-                this.messages.goodPoints.push('Nice. You have h1 tag, which is essential.');
+                this.messages.goodPoints.push('Tuyệt vời! Bạn đã có thẻ h1, đây là thẻ quan trọng.');
             }
 
+            // Cảnh báo cho thẻ h2
             let headingsTwo = this.filterHeading('h2');
             if (headingsTwo.length === 0) {
-                this.messages.warnings.push('Missing h2 tag, please add at least one h2 tag. It is recommended to have at least one h2 tag.');
+                this.messages.warnings.push('Thiếu thẻ h2, vui lòng thêm ít nhất một thẻ h2. Khuyến nghị nên có ít nhất một thẻ h2.');
             } else {
-                this.messages.goodPoints.push('Nice. You have h2 tag, which is essential.');
+                this.messages.goodPoints.push('Tuyệt vời! Bạn đã có thẻ h2, đây là thẻ quan trọng.');
             }
 
+            // Cảnh báo cho thẻ h3
             let headingsThree = this.filterHeading('h3');
             if (headingsThree.length === 0) {
-                this.messages.minorWarnings.push('Missing h3 tag, please add at least one h3 tag. Having h3 tag is not mandatory, but it is recommended to have at least one h3 tag.');
+                this.messages.minorWarnings.push('Thiếu thẻ h3, vui lòng thêm ít nhất một thẻ h3. Thẻ h3 không bắt buộc nhưng được khuyến nghị nên có ít nhất một thẻ h3.');
             } else {
-                this.messages.goodPoints.push('You have h3 tag, which is good.');
+                this.messages.goodPoints.push('Bạn đã có thẻ h3, điều này rất tốt.');
             }
         }
     }
 
-    // keyword in Headings
+    // Từ khóa trong các thẻ heading
     assignMessagesForKeywordInHeadings() {
         this.headings.forEach((heading) => {
             let keywordInHeading = this.countOccurrencesInString(this.content.keyword, heading.text);
             if (keywordInHeading > 0) {
-                this.messages.goodPoints.push(`Keyword "${this.content.keyword}" found in ${heading.tag} tag "${heading.text}".`);
+                this.messages.goodPoints.push(`Từ khóa "${this.content.keyword}" được tìm thấy trong thẻ ${heading.tag} với nội dung "${heading.text}".`);
             } else {
-                this.messages.minorWarnings.push(`Keyword "${this.content.keyword}" not found in ${heading.tag} tag "${heading.text}".`);
+                this.messages.minorWarnings.push(`Từ khóa "${this.content.keyword}" không được tìm thấy trong thẻ ${heading.tag} với nội dung "${heading.text}".`);
             }
         });
     }
 
-    // sub keywords in Headings
+    // Từ khóa phụ trong các thẻ heading
     assignMessagesForSubKeywordsInHeadings() {
         this.headings.forEach((heading) => {
             this.content.subKeywords.forEach((subKeyword) => {
                 let subKeywordInHeading = this.countOccurrencesInString(subKeyword, heading.text);
                 if (subKeywordInHeading > 0) {
-                    this.messages.goodPoints.push(`Sub keyword "${subKeyword}" found in ${heading.tag} tag "${heading.text}", which is good.`);
+                    this.messages.goodPoints.push(`Từ khóa phụ "${subKeyword}" được tìm thấy trong thẻ ${heading.tag} với nội dung "${heading.text}", điều này rất tốt.`);
                 } else {
-                    this.messages.minorWarnings.push(`Sub keyword "${subKeyword}" not found in ${heading.tag} tag "${heading.text}".`);
+                    this.messages.minorWarnings.push(`Từ khóa phụ "${subKeyword}" không được tìm thấy trong thẻ ${heading.tag} với nội dung "${heading.text}".`);
                 }
             });
         });
     }
+
 
     /**
      * Returns the messages object.
